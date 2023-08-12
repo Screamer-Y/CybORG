@@ -243,4 +243,4 @@ Here are some additional tips for adding exploit actions:
 3. Make sure the vulnerable process has the corresponding port used in the exploit.
 4. Work out what you want the vulnerable process_type to be and make sure it is in or add it to the ProcessType Enum in Shared/Enums.py.
 5. Use the ExploitAction.sim_exploit() method to execute the exploit. See the EternalBlue example above.
-6. Overwrite the check_exploit_works method to check for additional prerequisites.
+6. Overwrite the check_exploit_works method to check for additional prerequisites.·

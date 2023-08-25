@@ -11,6 +11,11 @@ from CybORG.Shared import Scenario
 from CybORG.Simulator.Actions import Monitor
 from CybORG.Shared.Scenario import ScenarioHost
 from CybORG.Shared.Scenarios.ScenarioGenerator import ScenarioGenerator
+# modification
+import numpy
+from gym.utils import seeding
+
+
 
 
 class FileReaderScenarioGenerator(ScenarioGenerator):
@@ -23,9 +28,12 @@ class FileReaderScenarioGenerator(ScenarioGenerator):
             file_path: this is the path to the file being used to create the scenario. The file should be in yaml format
         """
         super().__init__()
+        # 不知道什么来的
         self.background = "plain_background"
         self.file_path = file_path
+        np_random,_ = seeding.np_random(1)
 
+        # 读取两个yaml
         with open(self.file_path) as fIn:
             scenario_dict = yaml.load(fIn, Loader=yaml.FullLoader)
         from CybORG import CybORG
@@ -33,6 +41,7 @@ class FileReaderScenarioGenerator(ScenarioGenerator):
         images_file_path = cyborg_path[:-7] + '/Simulator/Scenarios/scenario_files/images/'
         with open(images_file_path + 'images.yaml') as fIn:
             images_dict = yaml.load(fIn, Loader=yaml.FullLoader)
+        # 导入host和image
         if scenario_dict is not None:
             for hostname, image in scenario_dict["Hosts"].items():
                 if 'path' in images_dict[image["image"]]:
@@ -42,13 +51,16 @@ class FileReaderScenarioGenerator(ScenarioGenerator):
                     image.pop('image')
                 else:
                     scenario_dict["Hosts"][hostname] = copy.deepcopy(images_dict[image["image"]])
+        # 收益计算器
         scenario_dict['team_calcs'] = {agent_name: [(agent_data['reward_calculator_type'], agent_data.get('adversary', None)),] for agent_name, agent_data in scenario_dict['Agents'].items()}
+        # team agent?
         scenario_dict['team_agents'] = {agent_name: [agent_name] for agent_name, agent_data in scenario_dict['Agents'].items()}
         for agent_name in scenario_dict["Agents"].keys():
             scenario_dict["Agents"][agent_name]["team"] = agent_name
         scenario = Scenario.load(scenario_dict)
 
         # add in subnet routers as hosts
+        # 子网
         for subnet in scenario.subnets.keys():
             scenario.hosts[subnet+'_router'] = ScenarioHost(subnet+'_router', system_info={'OSType': 'linux',
                                                                      "OSDistribution": 'RouterLinux',
@@ -57,6 +69,7 @@ class FileReaderScenarioGenerator(ScenarioGenerator):
                                                                      "Architecture": "unknown"
                                                                      }, respond_to_ping=False)
             scenario.subnets[subnet].hosts.append(subnet+'_router')
+        # 启动了防火墙，设置了蓝队的默认扫描，剩下那个不知道是什么属性，最后的应该是设定起始位置
         if 'Scenario1b' in self.file_path or 'Scenario2' in self.file_path:
             scenario.operational_firewall = True
             for agent_name, agent_data in scenario.agents.items():
@@ -64,10 +77,11 @@ class FileReaderScenarioGenerator(ScenarioGenerator):
                     agent_data.default_actions = (Monitor, {'session': 0, 'agent': agent_name})
                 else:
                     agent_data.internal_only = True
-            with open(f'{cyborg_path[:-7]}/render/render_data_old_scenario.json', 'r') as f:
-                data = json.load(f)
+            starting_positions = np_random.choice([numpy.array([i, j]) for i in range(100) for j in range(100)], len(scenario.hosts), replace=False).tolist()
+            # with open(f'{cyborg_path[:-7]}/render/Crender_data_old_scenario.json', 'r') as f:
+            #     data = json.load(f)
             for host in scenario.hosts:
-                scenario.hosts[host].starting_position = (data['drones'][host]['x'], data['drones'][host]['y'])
+                scenario.hosts[host].starting_position = starting_positions.pop()
         self.scenario = scenario
 
     def create_scenario(self, np_random) -> Scenario:
@@ -76,6 +90,7 @@ class FileReaderScenarioGenerator(ScenarioGenerator):
         count = 0
         # randomly generate subnets cidrs for all subnets in scenario and IP addresses for all hosts in those subnets and create Subnet objects
         # using fixed size subnets (VLSM maybe viable alternative if required)
+        # 分配ip地址
         maximum_subnet_size = max([scenario.get_subnet_size(i) for i in scenario.subnets])
         subnets_cidrs = np_random.choice(
             list(IPv4Network("10.0.0.0/16").subnets(new_prefix=32 - max(int(log2(maximum_subnet_size + 5)), 4))),

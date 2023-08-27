@@ -63,11 +63,6 @@ Agents:
     agent_type: SleepAgent
     reward_calculator_type: HybridAvailabilityConfidentiality
     starting_sessions:
-      - hostname: User0
-        name: VeloUser0
-        parent: VeloServer
-        type: VelociraptorClient
-        username: ubuntu
       - hostname: API_Gateway
         name: VeloAG1
         parent: VeloServer
@@ -128,7 +123,7 @@ Agents:
           - ProcessCreation
         hostname: Defender
         name: VeloServer
-        num_children_sessions: 12
+        num_children_sessions: 11
         type: VelociraptorServer
         username: ubuntu
     wrappers: [ ]
@@ -140,32 +135,24 @@ Agents:
       - Enterprise3
     INT:
       Hosts:
-        User0:
+        API_Gateway:
           Interfaces: All
           System info: All
+          User info: All
     actions:
     - Sleep
-    - DiscoverRemoteSystems
-    - ExploitRemoteService
+    - ExploitLocalVulnerability
+    - ExploitRemoteVulnerability
     - PrivilegeEscalate
-    - Impact
     agent_type: SleepAgent
     reward_calculator_type: HybridImpactPwn
     starting_sessions:
-    - hostname: User0
+    - hostname: API_Gateway
       name: RedPhish
       type: RedAbstractSession
       username: SYSTEM
     wrappers: []
 Hosts:
-  User0:
-    AWS_Info: []
-    image: windows_user_host1
-    info:
-      User0:
-        Interfaces: All
-    ConfidentialityValue: None
-    AvailabilityValue: None
   Defender:
     AWS_Info: []
     image: Velociraptor_Server
@@ -179,7 +166,7 @@ Hosts:
     AvailabilityValue: Medium
   ServiceA1:
     AWS_Info: []
-    image: Internal
+    image: windows_user_host1
     info:
       Enterprise1:
         Interfaces: All
@@ -187,47 +174,52 @@ Hosts:
     AvailabilityValue: Medium
   ServiceA2:
     AWS_Info: []
-    image: Internal
+    image: windows_user_host1
     info:
       Enterprise1:
         Interfaces: All
     ConfidentialityValue: Medium
     AvailabilityValue: Medium
+    AbstractVulnerability:
   ServiceB1:
     AWS_Info: []
-    image: Internal
+    image: windows_user_host1
     info:
       Enterprise1:
         Interfaces: All
     ConfidentialityValue: Medium
     AvailabilityValue: Medium
+    AbstractVulnerability:
   ServiceB2:
     AWS_Info: []
-    image: Internal
+    image: windows_user_host1
     info:
       Enterprise1:
         Interfaces: All
     ConfidentialityValue: Medium
     AvailabilityValue: Medium
+    AbstractVulnerability:
   ServiceC1:
     AWS_Info: []
-    image: Internal
+    image: windows_user_host1
     info:
       Enterprise1:
         Interfaces: All
     ConfidentialityValue: Medium
     AvailabilityValue: Medium
+    AbstractVulnerability:
   ServiceC2:
     AWS_Info: []
-    image: Internal
+    image: windows_user_host1
     info:
       Enterprise1:
         Interfaces: All
     ConfidentialityValue: Medium
     AvailabilityValue: Medium
+    AbstractVulnerability:
   DatabaseA:
     AWS_Info: []
-    image: Internal
+    image: windows_user_host1
     info:
       Enterprise1:
         Interfaces: All
@@ -235,7 +227,7 @@ Hosts:
     AvailabilityValue: High
   DatabaseB:
     AWS_Info: []
-    image: Internal
+    image: windows_user_host1
     info:
       Enterprise1:
         Interfaces: All
@@ -243,7 +235,7 @@ Hosts:
     AvailabilityValue: High
   DatabaseC:
     AWS_Info: []
-    image: Internal
+    image: windows_user_host1
     info:
       Enterprise1:
         Interfaces: All
@@ -283,12 +275,11 @@ Subnets:
   User:
     Hosts:
     - API_Gateway
-    - User0
     NACLs:
       all:
         in: all
         out: all
-    Size: 2
+    Size: 1
   Operation:
     Hosts:
     - Defender

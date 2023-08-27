@@ -1,0 +1,294 @@
+Agents:
+  Blue:
+    AllowedSubnets:
+      - User
+      - Enterprise1
+      - Enterprise2
+      - Enterprise3
+      - Operation
+    INT:
+      Hosts:
+        Defender:
+          Interfaces: All
+          System info: All
+          User info: All
+        ServiceA1:
+          Interfaces: All
+          System info: All
+          User info: All
+        ServiceA2:
+          Interfaces: All
+          System info: All
+          User info: All
+        ServiceB1:
+          Interfaces: All
+          System info: All
+          User info: All
+        ServiceA2:
+          Interfaces: All
+          System info: All
+          User info: All
+        ServiceC1:
+          Interfaces: All
+          System info: All
+          User info: All
+        ServiceC2:
+          Interfaces: All
+          System info: All
+          User info: All
+        DatabaseA:
+          Interfaces: All
+          System info: All
+          User info: All
+        DatabaseB:
+          Interfaces: All
+          System info: All
+          User info: All
+        DatabaseC:
+          Interfaces: All
+          System info: All
+          User info: All
+        API_Gateway:
+          Interfaces: All
+          System info: All
+          User info: All
+    adversary: Red
+    actions:
+      - Sleep
+      - Monitor
+      - Analyse
+      - Remove
+      - Misinform
+      - Restore
+    agent_type: SleepAgent
+    reward_calculator_type: HybridAvailabilityConfidentiality
+    starting_sessions:
+      - hostname: API_Gateway
+        name: VeloAG1
+        parent: VeloServer
+        type: VelociraptorClient
+        username: ubuntu
+      - hostname: ServiceA1
+        name: VeloSA1
+        parent: VeloServer
+        type: VelociraptorClient
+        username: ubuntu
+      - hostname: ServiceA2
+        name: VeloSA2
+        parent: VeloServer
+        type: VelociraptorClient
+        username: ubuntu
+      - hostname: ServiceB1
+        name: VeloSB1
+        parent: VeloServer
+        type: VelociraptorClient
+        username: ubuntu
+      - hostname: ServiceB2
+        name: VeloSB2
+        parent: VeloServer
+        type: VelociraptorClient
+        username: ubuntu
+      - hostname: ServiceC1
+        name: VeloSC1
+        parent: VeloServer
+        type: VelociraptorClient
+        username: SYSTEM
+      - hostname: ServiceC2
+        name: VeloSC2
+        parent: VeloServer
+        type: VelociraptorClient
+        username: SYSTEM
+      - hostname: Defender
+        name: VeloDefender
+        parent: VeloServer
+        type: VelociraptorClient
+        username: ubuntu
+      - hostname: DatabaseA
+        name: VeloDA
+        parent: VeloServer
+        type: VelociraptorClient
+        username: ubuntu
+      - hostname: DatabaseB
+        name: VeloDB
+        parent: VeloServer
+        type: VelociraptorClient
+        username: ubuntu
+      - hostname: DatabaseC
+        name: VeloDC
+        parent: VeloServer
+        type: VelociraptorClient
+        username: ubuntu
+      - artifacts:
+          - NetworkConnections
+          - ProcessCreation
+        hostname: Defender
+        name: VeloServer
+        num_children_sessions: 11
+        type: VelociraptorServer
+        username: ubuntu
+    wrappers: [ ]
+  Red:
+    AllowedSubnets:
+      - User
+      - Enterprise1
+      - Enterprise2
+      - Enterprise3
+    INT:
+      Hosts:
+        User0:
+          Interfaces: All
+          System info: All
+          User info: All
+    actions:
+    - Sleep
+    - ExploitLocalVulnerability
+    - ExploitRemoteVulnerability
+    - PrivilegeEscalate
+    agent_type: SleepAgent
+    reward_calculator_type: HybridImpactPwn
+    starting_sessions:
+    - hostname: User0
+      name: RedPhish
+      type: RedAbstractSession
+      username: SYSTEM
+    wrappers: []
+Hosts:
+  User0:
+    AWS_Info: []
+    image: windows_user_host1
+    info:
+      User0:
+        Interfaces: All
+    ConfidentialityValue: None
+    AvailabilityValue: None
+  Defender:
+    AWS_Info: []
+    image: Velociraptor_Server
+  API_Gateway:
+    AWS_Info: []
+    image: Gateway
+    info:
+      Enterprise0:
+        Interfaces: All
+    ConfidentialityValue: Medium
+    AvailabilityValue: Medium
+  ServiceA1:
+    AWS_Info: []
+    image: Internal
+    info:
+      Enterprise1:
+        Interfaces: All
+    ConfidentialityValue: Medium
+    AvailabilityValue: Medium
+  ServiceA2:
+    AWS_Info: []
+    image: Internal
+    info:
+      Enterprise1:
+        Interfaces: All
+    ConfidentialityValue: Medium
+    AvailabilityValue: Medium
+  ServiceB1:
+    AWS_Info: []
+    image: Internal
+    info:
+      Enterprise1:
+        Interfaces: All
+    ConfidentialityValue: Medium
+    AvailabilityValue: Medium
+  ServiceB2:
+    AWS_Info: []
+    image: Internal
+    info:
+      Enterprise1:
+        Interfaces: All
+    ConfidentialityValue: Medium
+    AvailabilityValue: Medium
+  ServiceC1:
+    AWS_Info: []
+    image: Internal
+    info:
+      Enterprise1:
+        Interfaces: All
+    ConfidentialityValue: Medium
+    AvailabilityValue: Medium
+  ServiceC2:
+    AWS_Info: []
+    image: Internal
+    info:
+      Enterprise1:
+        Interfaces: All
+    ConfidentialityValue: Medium
+    AvailabilityValue: Medium
+  DatabaseA:
+    AWS_Info: []
+    image: Internal
+    info:
+      Enterprise1:
+        Interfaces: All
+    ConfidentialityValue: High
+    AvailabilityValue: High
+  DatabaseB:
+    AWS_Info: []
+    image: Internal
+    info:
+      Enterprise1:
+        Interfaces: All
+    ConfidentialityValue: High
+    AvailabilityValue: High
+  DatabaseC:
+    AWS_Info: []
+    image: Internal
+    info:
+      Enterprise1:
+        Interfaces: All
+    ConfidentialityValue: High
+    AvailabilityValue: High
+Subnets:
+  Enterprise1:
+    Hosts:
+    - ServiceA1
+    - ServiceA2
+    - DatabaseA
+    NACLs:
+      all:
+        in: all
+        out: all
+    Size: 3
+  Enterprise2:
+    Hosts:
+    - ServiceB1
+    - ServiceB2
+    - DatabaseB
+    NACLs:
+      all:
+        in: all
+        out: all
+    Size: 3
+  Enterprise3:
+    Hosts:
+    - ServiceC1
+    - ServiceC2
+    - DatabaseC
+    NACLs:
+      all:
+        in: all
+        out: all
+    Size: 3
+  User:
+    Hosts:
+    - API_Gateway
+    - User0
+    NACLs:
+      all:
+        in: all
+        out: all
+    Size: 2
+  Operation:
+    Hosts:
+    - Defender
+    NACLs:
+      all:
+        in: all
+        out: all
+    Size: 1

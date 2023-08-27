@@ -11,3 +11,5 @@ from .StopService import StopService
 from .StopProcess import StopProcess
 from .FloodBandwidth import FloodBandwidth
 from .RemoveOtherSessions import RemoveOtherSessions
+# Modification
+from .IPDiscovered import IPDiscovered

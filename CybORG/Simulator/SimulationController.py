@@ -9,7 +9,6 @@ from CybORG.Shared.RewardCalculator import RewardCalculator
 from CybORG.Shared.Scenarios.ScenarioGenerator import ScenarioGenerator
 from CybORG.Simulator.State import State
 
-
 class SimulationController(EnvironmentController):
     """The class that controls the Simulation environment.
 

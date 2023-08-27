@@ -24,15 +24,15 @@ class IPDiscovered(RemoteAction):
         """
         obs = Observation()
 
-        # # Check the session running the code exists and is active.
-        # if self.session not in state.sessions[self.agent]:
-        #     obs.set_success(False)
-        #     return obs
-        # from_host = state.hosts[state.sessions[self.agent][self.session].hostname]
-        # session = state.sessions[self.agent][self.session]
-        # if not session.active:
-        #     obs.set_success(False)
-        #     return obs
+        # Check the session running the code exists and is active.
+        if self.session not in state.sessions[self.agent]:
+            obs.set_success(False)
+            return obs
+        from_host = state.hosts[state.sessions[self.agent][self.session].hostname]
+        session = state.sessions[self.agent][self.session]
+        if not session.active:
+            obs.set_success(False)
+            return obs
         # Collect the ip addresses in absvul
         if isinstance(self.absvul.outcome, AbstractVulnerability.Outcome.IP_DISCOVERED):
             for target_host in self.absvul.target_host_id:

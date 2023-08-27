@@ -5,14 +5,13 @@ from typing import Any, Union
 import gym
 from gym.utils import seeding
 
-
 from CybORG.Shared import Observation, Results, CybORGLogger
 from CybORG.Shared.Enums import DecoyType
 from CybORG.Shared.EnvironmentController import EnvironmentController
 from CybORG.Shared.Scenarios.ScenarioGenerator import ScenarioGenerator
 from CybORG.Simulator.Actions import DiscoverNetworkServices, DiscoverRemoteSystems, ExploitRemoteService, \
     InvalidAction, \
-    Sleep, PrivilegeEscalate, Impact, Remove, Restore, SeizeControl, RetakeControl, RemoveOtherSessions, FloodBandwidth
+    Sleep, Impact, Remove, Restore, SeizeControl, RetakeControl, RemoveOtherSessions, FloodBandwidth
 from CybORG.Simulator.Actions.ConcreteActions.ActivateTrojan import ActivateTrojan
 from CybORG.Simulator.Actions.ConcreteActions.ControlTraffic import BlockTraffic, AllowTraffic
 from CybORG.Simulator.Actions.ConcreteActions.ExploitActions.ExploitAction import ExploitAction
@@ -20,32 +19,38 @@ from CybORG.Simulator.Scenarios import DroneSwarmScenarioGenerator
 from CybORG.Tests.utils import CustomGenerator
 # from CybORG.render.renderer import Renderer
 
-from CybORG.env import CybORG
-from abc import ABC
-from CybORG.Simulator import Host
-from typing import List, Dict
+# Modification
+from CybORG.ReproductionExtension.Actions.AbstractActions.ExploitLocalVulnerability import ExploitLocalVulnerability
+from CybORG.ReproductionExtension.Actions.AbstractActions.ExploitRemoteVulnerability import ExploitRemoteVulnerability
+from CybORG.ReproductionExtension.Actions.AbstractActions.PrivilegeEscalate import PrivilegeEscalate
+from CybORG.ReproductionExtension.Actions.AbstractActions.IPDiscovered import IPDiscovered
+from CybORG.ReproductionExtension.Shared.Scenarios.ScenarioGenerator import ScenarioGenerator
 
-class AbstractEnv(ABC):
-    """
-    An environment with a higher level of abstraction.
-    Abstract Vulnerability System is introduced in this env.
+
+class CybORG(CybORGLogger):
+    """The main interface for the Cyber Operations Research Gym.
+
+    The primary purpose of this class is to provide a unified interface for the CybORG simulation and emulation
+    environments. The user chooses which of these modes to run when instantiating the class and CybORG initialises
+    the appropriate environment controller.
+
+    This class also provides the external facing API for reinforcement learning agents, before passing these commands
+    to the environment controller. The API is intended to closely resemble that of OpenAI Gym.
 
     Attributes
     ----------
-    cyborg_env : CybORG
-        associated CybORG instance.
-    abstract_vulnerability_map : Dict{host_id:List[AbstractVulnerability]}
-    # 这里主要看按什么形式把AVHost放进来
-    # 这里面应该有个dict，能够记录'id-不用ip，就用主机名字':list of Abs Vulnerabilities.(typing类)
-    # 实例化的Abs Vul类
-    # 最后就是有个YAML文件可以读进来，保证这个环境的建设
-    
+    scenario_generator : ScenarioGenerator
+        ScenarioGenerator object that creates scenarios.
+    environment : str, optional
+        The environment to use. CybORG currently supports 'sim'
+        and 'aws' modes (default='sim').
+    env_config : dict, optional
+        Configuration keyword arguments for environment controller
+        (See relevant Controller class for details), (default=None).
+    agents : dict, optional
+        Defines the agent that selects the default action to be performed if the external agent does not pick an action
+        If None agents will be loaded from description in scenario file (default=None).
     """
-
-    # init. 初始化cyborg和Vuln-host list
-    
-    # 
-class Temp(): 
     supported_envs = ['sim', 'aws']
 
     def __init__(self,

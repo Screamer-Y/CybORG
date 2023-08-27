@@ -8,3 +8,6 @@ from .Restore import Restore
 from .Misinform import Misinform
 from .PrivilegeEscalate import PrivilegeEscalate
 from .Impact import Impact
+# Modification
+from .ExploitLocalVulnerability import ExploitLocalVulnerability
+from .ExploitRemoteVulnerability import ExploitRemoteVulnerability

@@ -7,15 +7,14 @@ from math import log2
 import yaml
 
 
-from CybORG.Shared import Scenario
+# from CybORG.Shared import Scenario
+from CybORG.ReproductionExtension.Shared.Scenario import Scenario
 from CybORG.Simulator.Actions import Monitor
 from CybORG.Shared.Scenario import ScenarioHost
-from CybORG.Shared.Scenarios.ScenarioGenerator import ScenarioGenerator
+from CybORG.ReproductionExtension.Shared.Scenarios.ScenarioGenerator import ScenarioGenerator
 # modification
 import numpy
 from gym.utils import seeding
-
-
 
 
 class FileReaderScenarioGenerator(ScenarioGenerator):

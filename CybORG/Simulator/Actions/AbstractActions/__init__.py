@@ -11,3 +11,6 @@ from .Impact import Impact
 # Modification
 from .ExploitLocalVulnerability import ExploitLocalVulnerability
 from .ExploitRemoteVulnerability import ExploitRemoteVulnerability
+from .RollBackVulnerability import RollBackVulnerability
+from .EraseIP import EraseIP
+from .RollBackHost import RollBackHost

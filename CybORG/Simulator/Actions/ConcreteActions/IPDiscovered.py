@@ -6,7 +6,7 @@ from CybORG.Simulator.Actions.ConcreteActions.LocalAction import LocalAction
 from CybORG.Simulator.Actions.Action import lo_subnet, lo
 from CybORG.Simulator.State import State
 from CybORG.Simulator.AbstractVulnerability import AbstractVulnerability
-from CybORG.Simulator.StateExtension import StateExtension
+from CybORG.Simulator.State import State
 
 
 class IPDiscovered(RemoteAction):
@@ -18,7 +18,7 @@ class IPDiscovered(RemoteAction):
         self.hostname = hostname
         self.target_host_id = target_host_id
 
-    def execute(self, state: StateExtension) -> Observation:
+    def execute(self, state: State) -> Observation:
         """
         Executes a pingsweep in the simulator.
         """
@@ -39,6 +39,7 @@ class IPDiscovered(RemoteAction):
         obs.set_success(True)
         for i in range(len(target_ip)):
             obs.add_interface_info(hostid=str(target_ip[i]), subnet=target_subnet[i], ip_address=target_ip[i])
-        # Record exploit
-        # self.absvul.history[len(self.absvul.history)+1] = {'host':self.hostname, 'success':True}
+        # obs purfier
+        if self.hostname not in state.discovered_sequence:
+            state.discovered_sequence.append(self.hostname)
         return obs

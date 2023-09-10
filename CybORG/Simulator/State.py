@@ -48,6 +48,11 @@ class State(CybORGLogger):
         self.operational_firewall = scenario.operational_firewall
         self.blocks = {}
 
+        # modification
+        self.host_absvul_map = None  # load from outer class
+        self.discovered_sequence = []
+        # modification
+
     def get_true_state(self, info: dict) -> Observation:
         true_obs = Observation()
         if info is None:

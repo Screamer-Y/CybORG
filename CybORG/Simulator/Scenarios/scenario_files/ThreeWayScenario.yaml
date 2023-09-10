@@ -55,10 +55,7 @@ Agents:
     adversary: Red
     actions:
       - Sleep
-      - Monitor
-      - Analyse
-      - Remove
-      - Misinform
+      - RollBackHost
       - Restore
     agent_type: SleepAgent
     reward_calculator_type: HybridAvailabilityConfidentiality

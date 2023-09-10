@@ -20,6 +20,12 @@ from CybORG.Simulator.Session import VelociraptorServer, RedAbstractSession, Ses
 
 from CybORG.Simulator.User import User
 
+# modification
+class Status:
+    STOP = 0
+    RUNNING = 1
+    REIMAGING = 2
+# modification
 
 class Host(Entity):
     """Simulates a host.
@@ -98,6 +104,8 @@ class Host(Entity):
 
         self.np_random = np_random
 
+        # modification
+        self.status = Status.RUNNING
 
     def get_state(self):
         observation = {"os_type": self.os_type, "os_distribution": self.distribution, "os_version": self.version,

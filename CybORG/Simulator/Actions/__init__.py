@@ -21,5 +21,5 @@ from .GreenActions import GreenPingSweep, GreenPortScan, GreenConnection
 from .ConcreteActions import HTTPRFI, HTTPSRFI, SSHBruteForce, FTPDirectoryTraversal, HarakaRCE, SQLInjection, EternalBlue, BlueKeep, RemoteCodeExecutionOnSMTP, ExploitDroneVulnerability, DecoyApache, DecoyFemitter, DecoyHarakaSMPT, DecoySmss, DecoySSHD, DecoySvchost, DecoyTomcat, DecoyVsftpd, RetakeControl, SeizeControl, FloodBandwidth, RemoveOtherSessions
 from .ConcreteActions.EscalateActions import EscalateAction
 # Modification
-from .AbstractActions import ExploitLocalVulnerability,ExploitRemoteVulnerability
+from .AbstractActions import ExploitLocalVulnerability,ExploitRemoteVulnerability,EraseIP,RollBackVulnerability,RollBackHost
 from .ConcreteActions import IPDiscovered

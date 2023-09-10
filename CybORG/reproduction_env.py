@@ -1,8 +1,4 @@
 from CybORG import CybORG
-# from CybORG.Simulator.Actions.AbstractActions.ExploitLocalVulnerability import ExploitLocalVulnerability
-# from CybORG.Simulator.Actions.AbstractActions.ExploitRemoteVulnerability import ExploitRemoteVulnerability
-# from CybORG.Simulator.Actions.AbstractActions.PrivilegeEscalate import PrivilegeEscalate
-# from CybORG.Simulator.Actions.ConcreteActions.IPDiscovered import IPDiscovered
 from abc import ABC
 import yaml
 from typing import Dict, List
@@ -28,6 +24,15 @@ class CybORGExtension(ABC):
         """
         self.cyborg = cyborg
         self.host_absvul_map = host_absvul_map
+        for host,boolean in self.cyborg.environment_controller.agent_interfaces['Red'].action_space.hostname.items():
+            if boolean:
+                self.cyborg.environment_controller.state.discovered_sequence.append(host)
+
+    def update_host_absvul_action_space(self):
+        self.cyborg.environment_controller.agent_interfaces['Red'].action_space.absvul = {}
+        for _, vul_dict in self.host_absvul_map.items():
+            for _, vul in vul_dict.items():
+                self.cyborg.environment_controller.agent_interfaces['Red'].action_space.absvul[vul] = True
 
     def load_host_absvul_map_from_yaml(self, path):
         def map_type_outcome(input_str):
@@ -49,13 +54,15 @@ class CybORGExtension(ABC):
             for v_id,v_value in vulnerability.items():
                 v_type = map_type_outcome(v_value['vulnerability_type'])
                 v_outcome = map_type_outcome(v_value['outcome'])
-                av = AbstractVulnerability(v_id, v_type, v_value['target_host_id'], v_outcome, v_value['description'])
+                av = AbstractVulnerability(v_id, v_type, hostname, self.cyborg.environment_controller, v_value['target_host_id'], v_outcome, v_value['description'])
                 host_absvul_map[hostname][v_id] = av
         self.host_absvul_map = host_absvul_map
+        self.cyborg.environment_controller.state.host_absvul_map = self.host_absvul_map
+        self.update_host_absvul_action_space()
 
     @property
     def get_host_absvul_map(self):
         return self.host_absvul_map
 
-    def update_action_space(self):
+    def step(self):
         pass

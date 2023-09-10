@@ -8,6 +8,7 @@ from typing import List, Union, Optional
 from ipaddress import IPv4Network, IPv4Address
 
 import CybORG.Shared.Enums as CyEnums
+from CybORG.Simulator.State import State
 
 BROADCAST_ADDRESS = IPv4Address('0.0.0.0')
 
@@ -873,3 +874,34 @@ class Observation:
             if other_v != v:
                 return False
         return True
+
+# modification
+# TODO: 从State里面入手，把map放进来，也把space的内容放进来
+    # 两个基于State的外部类
+    # Observation Space Purifier:
+        # Attacker
+        # host -> running state
+        # action recorder -> vulnerability map exploit, history
+        # seq -> set a list for it.
+    def add_repro_attacker_obs(self, state: State):
+        # TODO: Reimage的设置
+        new_obs = {}
+        for hostname,host in state.hosts.items():
+            new_obs['running_status'][hostname] = host.status
+            new_obs['discovered_sequence'][hostname] = 'Unknown'
+            new_obs['action_history'][hostname] = {vul_id:'Unknown' for vul_id,_ in state.host_absvul_map.items()}
+        for i in range(len(state.discovered_sequence)):
+            new_obs['discovered_sequence'][state.discovered_sequence[i]] = i
+        for vul_id, vul in state.host_absvul_map.items():
+            for ind, history in vul.history.items():
+                new_obs['action_history'][history['host']] = history['success']
+                
+
+
+
+        # Defender
+        # host -> running state
+        # action recorder -> vulnerability map exploit
+
+    # Action Space Purifier:
+        # Attacker

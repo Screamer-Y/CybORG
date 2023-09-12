@@ -8,7 +8,7 @@ from typing import List, Union, Optional
 from ipaddress import IPv4Network, IPv4Address
 
 import CybORG.Shared.Enums as CyEnums
-from CybORG.Simulator.State import State
+# from CybORG.Simulator.State import State
 
 BROADCAST_ADDRESS = IPv4Address('0.0.0.0')
 
@@ -883,7 +883,7 @@ class Observation:
         # host -> running state
         # action recorder -> vulnerability map exploit, history
         # seq -> set a list for it.
-    def add_repro_attacker_obs(self, state: State):
+    def add_repro_attacker_obs(self, state):
         # TODO: Reimage的设置
         new_obs = {}
         for hostname,host in state.hosts.items():

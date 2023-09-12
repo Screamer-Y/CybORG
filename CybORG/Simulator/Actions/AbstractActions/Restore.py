@@ -6,6 +6,9 @@ from CybORG.Simulator.Actions import Action
 from CybORG.Simulator.Actions.ConcreteActions.RestoreFromBackup import RestoreFromBackup
 from CybORG.Simulator.Session import VelociraptorServer
 from CybORG.Simulator.Actions.AbstractActions import Monitor
+from CybORG.Simulator.Host import Status
+
+REIMAGE_DURATION = 5
 
 class Restore(Action):
     def __init__(self, session: int, agent: str, hostname: str):
@@ -15,10 +18,7 @@ class Restore(Action):
         self.hostname = hostname
 
     def execute(self, state) -> Observation:
-        # perform monitor at start of action
-        #monitor = Monitor(session=self.session, agent=self.agent)
-        #obs = monitor.execute(state)
-
+        # check if session exists
         if self.session not in state.sessions[self.agent]:
             return Observation(False)
         parent_session: VelociraptorServer = state.sessions[self.agent][self.session]
@@ -30,7 +30,8 @@ class Restore(Action):
             # restore host
             action = RestoreFromBackup(session=self.session, agent=self.agent, target_session=session.ident)
             action.execute(state)
-            # remove suspicious files
+            state.hosts[hostname].status = Status.REIMAGING
+            # TODO: set a class to record reimage time
             return obs
         else:
             return Observation(False)

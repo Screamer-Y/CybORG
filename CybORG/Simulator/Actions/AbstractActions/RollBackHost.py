@@ -18,33 +18,26 @@ class RollBackHost(Action):
         self.session = session
         self.hostname = hostname
 
-    def record_rollback(self, obs, vulnerability: AbstractVulnerability):
+    def record_rollback(self, obs, hostname, state):
         # Record the exploitation
+        if hostname not in state.rollback_history:
+            state.rollback_history[hostname] = {'success': False, 'failure': False}
         if obs.success:
-            vulnerability.history[len(vulnerability.history)+1] = {'host':'Defender_RollBack', 'success':True}
+            state.rollback_history[hostname]['success'] = True
         else:
-            vulnerability.history[len(vulnerability.history)+1] = {'host':'Defender_RollBack', 'success':False}
+            state.rollback_history[hostname]['failure'] = True
 
     def execute(self, state: State) -> Observation:
         # Randomly select a vulnerability in the host and roll it back.
-        # TODO: get a dummy vulnerability in the host, if failed, use the vul to record failure.
-        if self.hostname in state.host_absvul_map:
-            vulnerability_list = list(state.host_absvul_map[self.hostname].values())
-            if len(vulnerability_list)>0:
-                dummy_vulnerability = vulnerability_list[0]
-            else:
-                dummy_vulnerability = AbstractVulnerability()
-        else:
-            dummy_vulnerability = AbstractVulnerability()
         # check whether the host is running or reimaging
         if not state.hosts[self.hostname].status == Status.RUNNING:
             obs = Observation(success=False)
-            self.record_rollback(obs, dummy_vulnerability)
+            self.record_rollback(obs, self.hostname, state)
             return obs
         host_absvul_map = state.host_absvul_map
         if self.hostname not in host_absvul_map:
             obs = Observation(False)
-            self.record_rollback(obs, dummy_vulnerability)
+            self.record_rollback(obs, self.hostname, state)
             return obs
         vul_dict = host_absvul_map[self.hostname]
         keys = list(vul_dict.keys())
@@ -57,13 +50,13 @@ class RollBackHost(Action):
                 break
         if flag:
             obs = Observation(False)
-            self.record_rollback(obs, dummy_vulnerability)
+            self.record_rollback(obs, self.hostname, state)
             return obs
         sub_action = RollBackVulnerability(self.session, self.agent, selected_vulnerability)
         if selected_vulnerability.outcome == AbstractVulnerability.Outcome.IP_DISCOVERED:
             state.discovered_sequence.pop(state.discovered_sequence.index(self.hostname))
         obs = sub_action.execute(state)
-        self.record_rollback(obs, selected_vulnerability)
+        self.record_rollback(obs, self.hostname, state)
         return obs
 
     def __str__(self):

@@ -876,12 +876,14 @@ class Observation:
         return True
 
 # modification
-# TODO: 同时记录成功和失败记录
+# TODO: Red Obs同时记录成功和失败记录
 # TODO: Blue Obs
 # TODO: Red Action, Blue Action
     def add_repro_attacker_obs(self, state):
         new_obs = {'running_status':{},'discovered_sequence':{},'action_history':{}}
         for hostname,host in state.hosts.items():
+            if 'router' in hostname or 'Defender' in hostname:
+                continue
             new_obs['running_status'][hostname] = host.status
             new_obs['discovered_sequence'][hostname] = 'Unknown'
 
@@ -892,9 +894,24 @@ class Observation:
             for vul_id, vul in vul_dict.items():
                 for ind, history in vul.history.items(): 
                     if history['host'] == 'Defender_RollBack':
-                        new_obs['action_history']['Defender'][vul_id] = history['success']
                         continue
                     new_obs['action_history'][history['host']][vul_id] = history['success']
+        self.data = new_obs
+
+    def add_repro_defender_obs(self, state):
+        new_obs = {'running_status':{},'suspicous':{},'action_history':{}}
+        for hostname,host in state.hosts.items():
+            if 'router' in hostname or 'Defender' in hostname:
+                continue
+            new_obs['running_status'][hostname] = host.status
+            new_obs['suspicous'][hostname] = 0
+            new_obs['action_history'][hostname] = {'rollback':{'success':False,'failure':False},'resotre':{'success':False,'failure':False}}
+        for host in state.last_scan:
+            new_obs['suspicous'][host] = 1
+        for host, rollback_dict in state.rollback_history.items():
+            new_obs['action_history'][host]['rollback'] = rollback_dict
+        for host, restore_dict in state.restore_history.items():
+            new_obs['action_history'][host]['restore'] = restore_dict
         self.data = new_obs
                 
         

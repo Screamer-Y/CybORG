@@ -93,7 +93,6 @@ class PrivilegeEscalate(Action):
         # check whether the host is running or reimaging
         if not state.hosts[self.hostname].status == Status.RUNNING:
             obs = Observation(success=False)
-            self.record_exploitation(obs)
             return obs
         # find session on the chosen host
         sessions = [s for s in state.sessions[self.agent].values() if s.hostname == self.hostname]

@@ -876,19 +876,25 @@ class Observation:
         return True
 
 # modification
-# TODO: new type of red and blue observation, and wrapper for it.
+# TODO: 同时记录成功和失败记录
+# TODO: Blue Obs
+# TODO: Red Action, Blue Action
     def add_repro_attacker_obs(self, state):
-        new_obs = {}
+        new_obs = {'running_status':{},'discovered_sequence':{},'action_history':{}}
         for hostname,host in state.hosts.items():
             new_obs['running_status'][hostname] = host.status
             new_obs['discovered_sequence'][hostname] = 'Unknown'
-            new_obs['action_history'][hostname] = {vul_id:'Unknown' for vul_id,_ in state.host_absvul_map.items()}
+
+            new_obs['action_history'][hostname] = {vul_id:'Unknown' for _,vul_dict in state.host_absvul_map.items() for vul_id,_ in vul_dict.items()}
         for i in range(len(state.discovered_sequence)):
             new_obs['discovered_sequence'][state.discovered_sequence[i]] = i
-        for vul_id, vul in state.host_absvul_map.items():
-            for ind, history in vul.history.items():
-                new_obs['action_history'][history['host']] = history['success']
+        for _, vul_dict in state.host_absvul_map.items():
+            for vul_id, vul in vul_dict.items():
+                for ind, history in vul.history.items(): 
+                    if history['host'] == 'Defender_RollBack':
+                        new_obs['action_history']['Defender'][vul_id] = history['success']
+                        continue
+                    new_obs['action_history'][history['host']][vul_id] = history['success']
+        self.data = new_obs
                 
-    def add_scan_obs(self, hostname):
-        new_obs = {}
         

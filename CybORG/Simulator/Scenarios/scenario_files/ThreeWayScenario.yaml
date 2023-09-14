@@ -55,6 +55,7 @@ Agents:
     adversary: Red
     actions:
       - Sleep
+      - Scan
       - RollBackHost
       - Restore
     agent_type: SleepAgent

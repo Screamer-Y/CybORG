@@ -8,6 +8,7 @@ from CybORG.Shared.Observation import Observation
 from CybORG.Shared.RewardCalculator import RewardCalculator
 from CybORG.Shared.Scenarios.ScenarioGenerator import ScenarioGenerator
 from CybORG.Simulator.State import State
+from CybORG.Simulator.Host import Status
 
 class SimulationController(EnvironmentController):
     """The class that controls the Simulation environment.
@@ -26,6 +27,20 @@ class SimulationController(EnvironmentController):
 
     def reset(self, agent=None, np_random=None):
         return super(SimulationController, self).reset(agent, np_random)
+    
+    # modification
+    # check if there is any host whose status is REMIAMGING, 
+    # if yes, than reduce its the host's reimage_step by 1.
+    # when the value of reimage_step is 0, then the host is set to RUNNING status.
+    def update_reimage_step(self):
+        for host_id,host in self.state.hosts.items():
+            if host.status == Status.REIMAGING:
+                if host.reimage_step > 0:
+                    host.reimage_step -= 1
+                if host.reimage_step == 0:
+                    host.status = Status.RUNNING
+                    host.reimage_step = None
+    # modification
 
     def step(self, actions: dict = None, skip_valid_action_check=False):
         """Updates the simulation environment based on the joint actions of all agents
@@ -46,6 +61,7 @@ class SimulationController(EnvironmentController):
         for host in self.state.hosts.values():
             host.update(self.state)
         self.state.update_data_links()
+        self.update_reimage_step()
 
     def pause(self):
         pass
@@ -71,10 +87,19 @@ class SimulationController(EnvironmentController):
         pass
 
     def _create_environment(self, scenario: Scenario):
+        # modification
+        if self.state:
+            host_absvul_map = self.state.host_absvul_map
+        else:
+            host_absvul_map = None
+        # modidfication
         self.state = State(scenario, self.np_random)
         self.hostname_ip_map = {h: ip for ip, h in self.state.ip_addresses.items()}
         self.subnet_cidr_map = self.state.subnet_name_to_cidr
         self.end_turn_actions = scenario.get_end_turn_actions()
+        # modidfication
+        self.state.host_absvul_map = host_absvul_map
+        # modidfication
 
     def run_schtasks(self):
         for host in self.hosts:

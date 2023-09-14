@@ -49,8 +49,9 @@ class State(CybORGLogger):
         self.blocks = {}
 
         # modification
-        self.host_absvul_map = None  # load from outer class
+        self.host_absvul_map:dict = None  # load from outer class
         self.discovered_sequence = []
+        self.restore_history = {}
         # modification
 
     def get_true_state(self, info: dict) -> Observation:

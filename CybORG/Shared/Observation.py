@@ -876,15 +876,8 @@ class Observation:
         return True
 
 # modification
-# TODO: 从State里面入手，把map放进来，也把space的内容放进来
-    # 两个基于State的外部类
-    # Observation Space Purifier:
-        # Attacker
-        # host -> running state
-        # action recorder -> vulnerability map exploit, history
-        # seq -> set a list for it.
+# TODO: new type of red and blue observation, and wrapper for it.
     def add_repro_attacker_obs(self, state):
-        # TODO: Reimage的设置
         new_obs = {}
         for hostname,host in state.hosts.items():
             new_obs['running_status'][hostname] = host.status
@@ -896,12 +889,6 @@ class Observation:
             for ind, history in vul.history.items():
                 new_obs['action_history'][history['host']] = history['success']
                 
-
-
-
-        # Defender
-        # host -> running state
-        # action recorder -> vulnerability map exploit
-
-    # Action Space Purifier:
-        # Attacker
+    def add_scan_obs(self, hostname):
+        new_obs = {}
+        

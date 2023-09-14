@@ -106,6 +106,7 @@ class Host(Entity):
 
         # modification
         self.status = Status.RUNNING
+        self.reimage_step = None
 
     def get_state(self):
         observation = {"os_type": self.os_type, "os_distribution": self.distribution, "os_version": self.version,

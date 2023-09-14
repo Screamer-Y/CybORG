@@ -154,4 +154,14 @@ class HybridImpactPwnRewardCalculator(RewardCalculator):
                                     # confidentiality, availability
             self.host_scores[host] = reward_state
 
+# modification
+class ReproductionRedRewardCalculator(RewardCalculator):
+    # for vulnerability, read the reward and cost, from action get the absvulnerability, and from obs get the 'success'
+    # for privilege escalation, read the value of the node, from current state get the host, and from obs get the 'success'
+    def __init__(self, agent_name: str, scenario: Scenario):
+        super(ReproductionRedRewardCalculator, self).__init__(agent_name)
+        # TODO: 如果蓝队做了调整如何反应至红队以避免重复的reward？
+        # 这里
+        
+
         

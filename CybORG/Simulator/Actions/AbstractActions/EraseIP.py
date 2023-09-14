@@ -23,7 +23,6 @@ class EraseIP(Action):
             session = state.np_random.choice(sessions)
             obs = Observation(True)
             # erase ip
-            # TODO: think of the observation
             swapped_dict = {v:k for k,v in state.ip_addresses.items()}
             ip_address = swapped_dict[self.hostname]
             self.agent_interface.action_space.ip_address[ip_address] = False

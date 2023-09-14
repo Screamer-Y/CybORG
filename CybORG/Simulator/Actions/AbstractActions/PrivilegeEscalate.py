@@ -20,6 +20,8 @@ from CybORG.Shared.Enums import (
         OperatingSystemType, TrinaryEnum)
 from CybORG.Simulator.State import State
 from CybORG.Simulator.Session import Session
+# modification
+from CybORG.Simulator.Host import Status
 
 # pylint: disable=too-few-public-methods
 class EscalateActionSelector(ABC):
@@ -88,6 +90,11 @@ class PrivilegeEscalate(Action):
         return sub_action.execute(state), target_session_ident
 
     def execute(self, state: State) -> Observation:
+        # check whether the host is running or reimaging
+        if not state.hosts[self.hostname].status == Status.RUNNING:
+            obs = Observation(success=False)
+            self.record_exploitation(obs)
+            return obs
         # find session on the chosen host
         sessions = [s for s in state.sessions[self.agent].values() if s.hostname == self.hostname]
         if len(sessions) == 0:

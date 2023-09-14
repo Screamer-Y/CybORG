@@ -14,3 +14,4 @@ from .ExploitRemoteVulnerability import ExploitRemoteVulnerability
 from .RollBackVulnerability import RollBackVulnerability
 from .EraseIP import EraseIP
 from .RollBackHost import RollBackHost
+from .Scan import Scan

@@ -5,6 +5,8 @@ from CybORG.Shared import Scenario
 from CybORG.Shared.Enums import OperatingSystemType
 from CybORG.Shared.RewardCalculator import RewardCalculator
 import pprint
+# modification
+from CybORG.Simulator.Actions import *
 
 WIN_REWARD = 0
 LOSE_REWARD = 0
@@ -160,8 +162,20 @@ class ReproductionRedRewardCalculator(RewardCalculator):
     # for privilege escalation, read the value of the node, from current state get the host, and from obs get the 'success'
     def __init__(self, agent_name: str, scenario: Scenario):
         super(ReproductionRedRewardCalculator, self).__init__(agent_name)
-        # TODO: 如果蓝队做了调整如何反应至红队以避免重复的reward？
-        # 这里
+        # nothing to add now.
+    def reset(self):
+        pass
+    def calculate_reward(self, current_state: dict, action: dict, agent_observations: dict, done: bool) -> float:
+        if isinstance(action, ExploitLocalVulnerability) or isinstance(action, ExploitRemoteVulnerability):
+            if agent_observations[self.agent_name].data['success']:
+                reward = action.absvul.bonus - action.absvul.cost
+            else:
+                reward = 0
+            return round(reward, REWARD_MAX_DECIMAL_PLACES)
+        if isinstance(action, PrivilegeEscalate):
+            # TODO: host value
+            return 100
+        
         
 
         

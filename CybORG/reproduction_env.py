@@ -54,7 +54,7 @@ class CybORGExtension(ABC):
             for v_id,v_value in vulnerability.items():
                 v_type = map_type_outcome(v_value['vulnerability_type'])
                 v_outcome = map_type_outcome(v_value['outcome'])
-                av = AbstractVulnerability(v_id, v_type, hostname, self.cyborg.environment_controller, v_value['target_host_id'], v_outcome, v_value['description'])
+                av = AbstractVulnerability(v_id, v_type, hostname, self.cyborg.environment_controller, v_value['target_host_id'], v_outcome, v_value['description'], None, v_value['bonus'], v_value['cost'])
                 host_absvul_map[hostname][v_id] = av
         self.host_absvul_map = host_absvul_map
         self.cyborg.environment_controller.state.host_absvul_map = self.host_absvul_map

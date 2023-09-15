@@ -876,8 +876,6 @@ class Observation:
         return True
 
 # modification
-# TODO: Red Obs同时记录成功和失败记录
-# TODO: Blue Obs
 # TODO: Red Action, Blue Action
     def add_repro_attacker_obs(self, state):
         new_obs = {'running_status':{},'discovered_sequence':{},'action_history':{}}
@@ -887,7 +885,7 @@ class Observation:
             new_obs['running_status'][hostname] = host.status
             new_obs['discovered_sequence'][hostname] = 'Unknown'
 
-            new_obs['action_history'][hostname] = {vul_id:'Unknown' for _,vul_dict in state.host_absvul_map.items() for vul_id,_ in vul_dict.items()}
+            new_obs['action_history'][hostname] = {vul_id:{'success':False,'failure':False} for _,vul_dict in state.host_absvul_map.items() for vul_id,_ in vul_dict.items()}
         for i in range(len(state.discovered_sequence)):
             new_obs['discovered_sequence'][state.discovered_sequence[i]] = i
         for _, vul_dict in state.host_absvul_map.items():
@@ -895,7 +893,10 @@ class Observation:
                 for ind, history in vul.history.items(): 
                     if history['host'] == 'Defender_RollBack':
                         continue
-                    new_obs['action_history'][history['host']][vul_id] = history['success']
+                    if history['success']:
+                        new_obs['action_history'][history['host']][vul_id]['success'] = True
+                    else:
+                        new_obs['action_history'][history['host']][vul_id]['failure'] = True
         self.data = new_obs
 
     def add_repro_defender_obs(self, state):

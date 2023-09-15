@@ -9,9 +9,12 @@ import numpy as np
 
 from CybORG.Agents import BaseAgent, SleepAgent
 from CybORG.Shared.BaselineRewardCalculator import BaselineRewardCalculator
-from CybORG.Shared.BlueRewardCalculator import HybridAvailabilityConfidentialityRewardCalculator
-from CybORG.Shared.RedRewardCalculator import HybridImpactPwnRewardCalculator, DistruptRewardCalculator, \
-    PwnRewardCalculator
+# modification
+# from CybORG.Shared.BlueRewardCalculator import HybridAvailabilityConfidentialityRewardCalculator
+# from CybORG.Shared.RedRewardCalculator import HybridImpactPwnRewardCalculator, DistruptRewardCalculator, \
+#     PwnRewardCalculator
+from CybORG.Shared.BlueRewardCalculator import *
+from CybORG.Shared.RedRewardCalculator import *
 from CybORG.Shared.RewardCalculator import EmptyRewardCalculator
 
 from CybORG.Shared import CybORGLogger
@@ -217,11 +220,12 @@ class Scenario(CybORGLogger):
         agent_starting_sessions = [agent.starting_sessions for agent in self.agents.values()]
         self.starting_sessions = list(itertools.chain(agent_starting_sessions))
 
-        if team_calcs is None:
-            self.team_calc = {}
-        else:
-            self.team_calc = {agent_name: self._get_reward_calcs(agent_name, calc_names) for agent_name, calc_names in
-                          team_calcs.items()}
+        # modification: move the calc to the end.
+        # if team_calcs is None:
+        #     self.team_calc = {}
+        # else:
+        #     self.team_calc = {agent_name: self._get_reward_calcs(agent_name, calc_names) for agent_name, calc_names in
+        #                   team_calcs.items()}
         if team_agents is None:
             self.team_agents = {}
         else:
@@ -242,6 +246,12 @@ class Scenario(CybORGLogger):
 
         self.operational_firewall = False
 
+        if team_calcs is None:
+            self.team_calc = {}
+        else:
+            self.team_calc = {agent_name: self._get_reward_calcs(agent_name, calc_names) for agent_name, calc_names in
+                          team_calcs.items()}
+
     def _get_reward_calcs(self, agent_name, reward_calc_names):
         return {name: self._get_reward_calculator(agent_name, name, adversary) for name, adversary \
                 in reward_calc_names}
@@ -259,6 +269,11 @@ class Scenario(CybORGLogger):
             calc = HybridAvailabilityConfidentialityRewardCalculator(team_name, self, adversary)
         elif reward_calculator == 'HybridImpactPwn':
             calc = HybridImpactPwnRewardCalculator(team_name, self)
+        # modification
+        elif reward_calculator == 'ReproductionRedRewardCalculator':
+            calc = ReproductionRedRewardCalculator(team_name, self)
+        elif reward_calculator == 'ReproductionBlueRewardCalculator':
+            calc = ReproductionBlueRewardCalculator(team_name, self)
         else:
             raise ValueError(f"Invalid calculator selection: {reward_calculator} for team {team_name}")
 

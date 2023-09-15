@@ -59,7 +59,7 @@ Agents:
       - RollBackHost
       - Restore
     agent_type: SleepAgent
-    reward_calculator_type: HybridAvailabilityConfidentiality
+    reward_calculator_type: ReproductionBlueRewardCalculator
     starting_sessions:
       - hostname: API_Gateway
         name: VeloAG1
@@ -143,7 +143,7 @@ Agents:
     - ExploitRemoteVulnerability
     - PrivilegeEscalate
     agent_type: SleepAgent
-    reward_calculator_type: HybridImpactPwn
+    reward_calculator_type: ReproductionRedRewardCalculator
     starting_sessions:
     - hostname: API_Gateway
       name: RedPhish

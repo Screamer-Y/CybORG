@@ -7,6 +7,9 @@ from CybORG.Shared.RewardCalculator import RewardCalculator
 
 HostReward = namedtuple('HostReward','confidentiality availability')
 
+# modification
+REWARD_MAX_DECIMAL_PLACES = 1
+
 class ConfidentialityRewardCalculator(RewardCalculator):
     # Calculate punishment for defending agent based on compromise of hosts/data
     def __init__(self, team_name: str, scenario: Scenario, adversary):
@@ -80,3 +83,45 @@ class HybridAvailabilityConfidentialityRewardCalculator(RewardCalculator):
             reward_state = HostReward(compromised,impacted)  
                                     # confidentiality, availability
             self.host_scores[host] = reward_state
+
+# modification
+class ReproductionBlueRewardCalculator(RewardCalculator):
+    # for Scan get reward from the new part of suspicous host from last scan
+    # for RollbackVulnerability, get reward from the absvul from action, and from obs get the 'success'
+    # for Restore, if the host is compromised, get a full reward from hostvalue, else a punishment from availability loss
+    def __init__(self, agent_name: str, scenario: Scenario):
+        super(ReproductionBlueRewardCalculator, self).__init__(agent_name)
+        value_dict = {'Medium': 25.0, 'High': 50.0, 'Low':10.0, 'None': 0.0}
+        self.host_value = {hostname:value_dict[host.confidentiality_value]+value_dict[host.availability_value] if host.confidentiality_value and host.availability_value else 0.0 for hostname,host in scenario.hosts.items()}
+        self.last_scan = []
+        self.SCAN_REWARD = 1.0
+
+    def reset(self):
+        pass
+
+    def calculate_reward(self, current_state: dict, action: dict, agent_observations: dict, done: bool) -> float:
+        if len(action) == 0:
+            return
+        if 'Sleep' in str(type(action['Blue'])):
+            return 0.0
+        if 'Scan' in str(type(action['Blue'])):
+            print(vars(agent_observations['Blue']))
+            new_suspicious_host_len = len(agent_observations['Blue'].data['hostname']) - len(self.last_scan)
+            reward = new_suspicious_host_len * self.SCAN_REWARD
+            self.last_scan = list(agent_observations['Blue'].data['hostname'])
+            return max(round(reward, REWARD_MAX_DECIMAL_PLACES), 0.0)
+        if 'RollBack' in str(type(action['Blue'])):
+            if agent_observations[self.agent_name].data['success']:
+                reward = action['Blue'].selected_vulnerability.bonus - action['Blue'].selected_vulnerability.cost
+            else:
+                reward = 0.0
+            return round(reward, REWARD_MAX_DECIMAL_PLACES)
+        if 'Restore' in str(type(action['Blue'])):
+            if agent_observations[self.agent_name].data['success']:
+                hostname = action['Blue'].hostname
+                reward = self.host_value[hostname]
+            else:
+                reward = 0.0
+            return round(reward, REWARD_MAX_DECIMAL_PLACES)
+        else:
+            raise ValueError(f"Unknown action type {type(action['Blue'])}")

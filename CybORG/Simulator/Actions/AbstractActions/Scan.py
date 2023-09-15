@@ -4,7 +4,7 @@ from CybORG.Simulator.Session import VelociraptorServer
 from CybORG.Simulator.State import State
 
 SCAN_RATE = 0.1
-FP_RATE = 0.1
+FP_RATE = 0.01
 
 class Scan(Action):
     def __init__(self, session: int, agent: str):
@@ -20,6 +20,8 @@ class Scan(Action):
                 # if vul.exploited, have a rate to return a obs
                 if vulnerability.exploited and state.np_random.random()>SCAN_RATE:
                     hostname = vulnerability.hostname
+                    if hostname in state.last_scan:
+                        continue
                     target_ip = [interface.ip_address for interface in state.hosts[hostname].interfaces]
                     target_subnet = [interface.subnet for interface in state.hosts[hostname].interfaces]
                     for i in range(len(target_ip)):
@@ -28,11 +30,14 @@ class Scan(Action):
                 # if not exploited, have a rate to return a obs as a false positive
                 if not vulnerability.exploited and state.np_random.random()<FP_RATE:
                     hostname = vulnerability.hostname
+                    if hostname in state.last_scan:
+                        continue
                     target_ip = [interface.ip_address for interface in state.hosts[hostname].interfaces]
                     target_subnet = [interface.subnet for interface in state.hosts[hostname].interfaces]
                     for i in range(len(target_ip)):
                         obs.add_interface_info(hostid=str(target_ip[i]), subnet=target_subnet[i], ip_address=target_ip[i])
                     state.last_scan.append(hostname)
+        obs.add_key_value('hostname', state.last_scan)
         return obs
 
 

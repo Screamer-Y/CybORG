@@ -136,6 +136,7 @@ class State(CybORGLogger):
         for hostname in scenario.hosts:
             host_info = scenario.get_host(hostname)
             host_class = Drone if host_info.host_type == 'drone' else Host
+            # modification
             self.hosts[hostname] = host_class(np_random=self.np_random,system_info=host_info.system_info, processes=host_info.processes,
                                         users=host_info.user_info, interfaces=host_info.interface_info,
                                         hostname=hostname, info=host_info.info, services=host_info.services,

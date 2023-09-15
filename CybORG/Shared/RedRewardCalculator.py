@@ -5,8 +5,6 @@ from CybORG.Shared import Scenario
 from CybORG.Shared.Enums import OperatingSystemType
 from CybORG.Shared.RewardCalculator import RewardCalculator
 import pprint
-# modification
-from CybORG.Simulator.Actions import *
 
 WIN_REWARD = 0
 LOSE_REWARD = 0
@@ -162,19 +160,31 @@ class ReproductionRedRewardCalculator(RewardCalculator):
     # for privilege escalation, read the value of the node, from current state get the host, and from obs get the 'success'
     def __init__(self, agent_name: str, scenario: Scenario):
         super(ReproductionRedRewardCalculator, self).__init__(agent_name)
+        value_dict = {'Medium': 25.0, 'High': 50.0, 'Low':10.0, 'None': 0.0}
+        self.host_value = {hostname:value_dict[host.confidentiality_value]+value_dict[host.availability_value] if host.confidentiality_value and host.availability_value else 0.0 for hostname,host in scenario.hosts.items()}
         # nothing to add now.
     def reset(self):
         pass
     def calculate_reward(self, current_state: dict, action: dict, agent_observations: dict, done: bool) -> float:
-        if isinstance(action, ExploitLocalVulnerability) or isinstance(action, ExploitRemoteVulnerability):
+        if len(action) == 0:
+            return
+        if 'Sleep' in str(type(action['Red'])):
+            return 0.0
+        if 'Vulnerability' in str(type(action['Red'])):
             if agent_observations[self.agent_name].data['success']:
-                reward = action.absvul.bonus - action.absvul.cost
+                reward = action['Red'].absvul.bonus - action['Red'].absvul.cost
             else:
-                reward = 0
+                reward = 0.0
             return round(reward, REWARD_MAX_DECIMAL_PLACES)
-        if isinstance(action, PrivilegeEscalate):
-            # TODO: host value
-            return 100
+        if 'Privilege' in str(type(action['Red'])):
+            if agent_observations[self.agent_name].data['success']:
+                hostname = action['Red'].hostname
+                reward = self.host_value[hostname]
+            else:
+                reward = 0.0
+            return round(reward, REWARD_MAX_DECIMAL_PLACES)
+        else:
+            raise ValueError(f"Unknown action type {type(action['Red'])}")
         
         
 

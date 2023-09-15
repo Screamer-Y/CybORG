@@ -57,6 +57,7 @@ class RollBackHost(Action):
             state.discovered_sequence.pop(state.discovered_sequence.index(self.hostname))
         obs = sub_action.execute(state)
         self.record_rollback(obs, self.hostname, state)
+        self.selected_vulnerability = selected_vulnerability
         return obs
 
     def __str__(self):

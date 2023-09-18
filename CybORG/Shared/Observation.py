@@ -876,7 +876,6 @@ class Observation:
         return True
 
 # modification
-# TODO: Red Action, Blue Action
     def add_repro_attacker_obs(self, state):
         new_obs = {'running_status':{},'discovered_sequence':{},'action_history':{}}
         for hostname,host in state.hosts.items():
@@ -884,20 +883,22 @@ class Observation:
                 continue
             new_obs['running_status'][hostname] = host.status
             new_obs['discovered_sequence'][hostname] = 'Unknown'
-
-            new_obs['action_history'][hostname] = {vul_id:{'success':False,'failure':False} for _,vul_dict in state.host_absvul_map.items() for vul_id,_ in vul_dict.items()}
+            if state.host_absvul_map:
+                new_obs['action_history'][hostname] = {vul_id:{'success':False,'failure':False} for _,vul_dict in state.host_absvul_map.items() for vul_id,_ in vul_dict.items()}
         for i in range(len(state.discovered_sequence)):
             new_obs['discovered_sequence'][state.discovered_sequence[i]] = i
-        for _, vul_dict in state.host_absvul_map.items():
-            for vul_id, vul in vul_dict.items():
-                for ind, history in vul.history.items(): 
-                    if history['host'] == 'Defender_RollBack':
-                        continue
-                    if history['success']:
-                        new_obs['action_history'][history['host']][vul_id]['success'] = True
-                    else:
-                        new_obs['action_history'][history['host']][vul_id]['failure'] = True
-        self.data = new_obs
+        if state.host_absvul_map:
+            for _, vul_dict in state.host_absvul_map.items():
+                for vul_id, vul in vul_dict.items():
+                    for ind, history in vul.history.items(): 
+                        if history['host'] == 'Defender_RollBack':
+                            continue
+                        if history['success']:
+                            new_obs['action_history'][history['host']][vul_id]['success'] = True
+                        else:
+                            new_obs['action_history'][history['host']][vul_id]['failure'] = True
+        for k, v in new_obs.items():
+            self.add_key_value(k, v)
 
     def add_repro_defender_obs(self, state):
         new_obs = {'running_status':{},'suspicous':{},'action_history':{}}
@@ -913,6 +914,7 @@ class Observation:
             new_obs['action_history'][host]['rollback'] = rollback_dict
         for host, restore_dict in state.restore_history.items():
             new_obs['action_history'][host]['restore'] = restore_dict
-        self.data = new_obs
+        for k, v in new_obs.items():
+            self.add_key_value(k, v)
                 
         

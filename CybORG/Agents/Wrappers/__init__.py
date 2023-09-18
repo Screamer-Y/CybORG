@@ -9,3 +9,5 @@ from .ChallengeWrapper import ChallengeWrapper
 from .IntFixedFlatWrapper import IntFixedFlatWrapper
 from .SimpleRedWrapper import SimpleRedWrapper
 from .PettingZooParallelWrapper import PettingZooParallelWrapper
+# modification
+from .DictFlatWrapper import DictFlatWrapper

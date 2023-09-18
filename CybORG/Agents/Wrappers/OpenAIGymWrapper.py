@@ -21,8 +21,17 @@ class OpenAIGymWrapper(Env, BaseWrapper):
         else:
             assert isinstance(self.get_action_space(self.agent_name), int)
             self.action_space = spaces.Discrete(self.get_action_space(self.agent_name))
-        box_len = len(self.observation_change(agent_name, self.env.reset(self.agent_name).observation))
-        self.observation_space = spaces.Box(-1.0, 3.0, shape=(box_len,), dtype=np.float32)
+        # modification
+        # box_len = len(self.observation_change(agent_name, self.env.reset(self.agent_name).observation))
+        # self.observation_space = spaces.Box(-1.0, 3.0, shape=(box_len,), dtype=np.float32)
+        obs = self.observation_change(agent_name, self.env.reset(agent_name).observation)
+        n_host = len(obs)
+        if self.agent_name == 'Red':
+            host_state_list = [3, n_host+1]
+        elif self.agent_name == 'Blue':
+            host_state_list = [3, 2]
+        host_state_list.extend([2]*(len(obs[0])-2))
+        self.observation_space = spaces.Tuple([spaces.MultiDiscrete(host_state_list) for _ in range(n_host)])
         self.reward_range = (float('-inf'), float('inf'))
         self.metadata = {}
         self.action = None
@@ -32,6 +41,7 @@ class OpenAIGymWrapper(Env, BaseWrapper):
             action = self.possible_actions[action]
         self.action = action
         result = self.env.step(self.agent_name, action)
+        
         result.observation = self.observation_change(self.agent_name, result.observation)
         result.action_space = self.action_space_change(result.action_space)
         info = vars(result)

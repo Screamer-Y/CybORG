@@ -72,6 +72,8 @@ class EnvironmentController(CybORGLogger):
         for agent_name, agent in self.agent_interfaces.items():
             self.observation[agent_name] = self._filter_obs(self.get_true_state(self.INFO_DICT[agent_name]), agent_name)
             agent.set_init_obs(self.observation[agent_name].data, self.init_state)
+            # modification
+            self.observation[agent_name] = self.get_reproduction_observation(agent_name)
         self.message_length = 16
         self.done = self.determine_done()
         # calculate reward for each team
@@ -80,6 +82,17 @@ class EnvironmentController(CybORGLogger):
             for reward_name, r_calc in team_calcs.items():
                 self.reward[team_name][reward_name] = self.calculate_reward(r_calc)
         self._log_debug(f"Finished init()")
+
+    # modification
+    def get_reproduction_observation(self, agent_name:str, success=None): 
+        if agent_name=='Red':
+            obs = Observation(success)
+            obs.add_repro_attacker_obs(self.state)
+            return obs
+        if agent_name=='Blue':
+            obs = Observation(success)
+            obs.add_repro_defender_obs(self.state)
+            return obs
 
     def reset(self, agent: str = None, np_random=None) -> Results:
         """Resets the environment and get initial agent observation and actions.
@@ -95,6 +108,9 @@ class EnvironmentController(CybORGLogger):
         Results
             The initial observation and actions of a agent or white team
         """
+        # modification
+        absvul_action_space = self.agent_interfaces['Red'].action_space.absvul
+        # modification
         self.reward = {}
         self.action = {}
         self.observation = {}
@@ -112,12 +128,17 @@ class EnvironmentController(CybORGLogger):
         for agent_name, agent_object in self.agent_interfaces.items():
             self.observation[agent_name] = self._filter_obs(self.get_true_state(self.INFO_DICT[agent_name]), agent_name)
             agent_object.set_init_obs(self.observation[agent_name].data, self.init_state)
+            # modification
+            self.observation[agent_name] = self.get_reproduction_observation(agent_name)
         self.done = self.determine_done()
         # calculate reward for each team
         for team_name, team_calcs in self.team_reward_calculators.items():
             self.reward[team_name] = {}
             for reward_name, r_calc in team_calcs.items():
                 self.reward[team_name][reward_name] = self.calculate_reward(r_calc)
+        # modification
+        self.agent_interfaces['Red'].action_space.absvul = absvul_action_space
+        # modification
         if agent is None:
             return Results(observation=self.init_state)
         else:
@@ -157,18 +178,29 @@ class EnvironmentController(CybORGLogger):
         # clear old observations
         self.observation = {}
 
+        # modification
+        temp_success_recorder = {}
+
         # execute actions in order of priority
         for agent_name, agent_action in actions.items():
             self.observation[agent_name] = self._filter_obs(self.execute_action(agent_action), agent_name)
+            # modification
+            temp_success_recorder[agent_name] = self.observation[agent_name].data['success']
 
         # execute additional default end turn actions
         for agent_name, agent_action in self.end_turn_actions.items():
             if self.is_active(agent_name):
                 self.observation[agent_name] = self._filter_obs(self.execute_action(agent_action[0](**agent_action[1])), agent_name).combine_obs(self.get_last_observation(agent_name))
+                # modification
+                temp_success_recorder[agent_name] = self.observation[agent_name].data['success']
 
         for agent_name, observation in self.observation.items():
             if self.scenario_generator.update_each_step or len(self.get_action_space(agent_name)['session']) == 0:
                 self.agent_interfaces[agent_name].update(observation)
+
+        # modification
+        for agent_name, success in temp_success_recorder.items():
+            self.observation[agent_name] = self.get_reproduction_observation(agent_name,success)
 
         # calculate done signal
         self.done = self.scenario_generator.determine_done(self)

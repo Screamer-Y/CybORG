@@ -123,5 +123,7 @@ class ReproductionBlueRewardCalculator(RewardCalculator):
             else:
                 reward = 0.0
             return round(reward, REWARD_MAX_DECIMAL_PLACES)
+        if 'Invalid' in str(type(action['Red'])):
+            return 0.0
         else:
             raise ValueError(f"Unknown action type {type(action['Blue'])}")

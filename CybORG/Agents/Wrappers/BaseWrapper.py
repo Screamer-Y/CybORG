@@ -12,6 +12,7 @@ class BaseWrapper:
 
     def step(self, agent=None, action=None) -> Results:
         result = self.env.step(agent, action)
+        print(result.observation)
         result.observation = self.observation_change(agent, result.observation)
         result.action_space = self.action_space_change(result.action_space)
         return result

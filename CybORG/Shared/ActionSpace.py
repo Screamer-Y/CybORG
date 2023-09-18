@@ -16,6 +16,8 @@ MAX_PORTS = 50
 MAX_GROUPS = 15
 MAX_FILES = 20
 MAX_PATHS = 20
+# modification
+MAX_ABSVUL = 50
 
 
 class ActionSpace(CybORGLogger):
@@ -38,6 +40,8 @@ class ActionSpace(CybORGLogger):
         self.port = {}
         self.hostname = {}
         self.agent = {agent: True}
+        # modification
+        self.absvul = {}
 
     def get_name(self, action: int) -> str:
         pass
@@ -52,7 +56,9 @@ class ActionSpace(CybORGLogger):
             'password': MAX_PASSWORDS,
             'process': MAX_PROCESSES,
             'port': MAX_PORTS,
-            'target_session': MAX_SESSIONS}
+            'target_session': MAX_SESSIONS,
+            # modification
+            'absvul':MAX_ABSVUL}
         return max_action
 
     def get_action_space(self):
@@ -67,7 +73,9 @@ class ActionSpace(CybORGLogger):
             'port': self.port,
             'target_session': self.client_session,
             'agent': self.agent,
-            'hostname': self.hostname
+            'hostname': self.hostname,
+            # modification
+            'absvul': self.absvul
         }
         return max_action
 
@@ -81,6 +89,8 @@ class ActionSpace(CybORGLogger):
         self.process = {}
         self.port = {}
         self.agent = {agent: True}
+        # modification
+        self.absvul = {}
 
     def get_max_actions(self, action):
         params = self.action_params[action]
@@ -104,6 +114,9 @@ class ActionSpace(CybORGLogger):
                 size *= len(self.port)
             elif param == "agent":
                 size *= len(self.agent)
+            # modification
+            elif param == "absvul":
+                size *= len(self.absvul)
             else:
                 raise NotImplementedError(
                     f"Param '{param}' in action '{action.__name__}' has no"

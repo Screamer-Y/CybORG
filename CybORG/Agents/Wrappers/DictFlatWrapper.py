@@ -1,5 +1,6 @@
 import random
 from datetime import datetime
+import numpy as np
 
 from CybORG.Agents.Wrappers.BaseWrapper import BaseWrapper
 from CybORG.Shared.Enums import OperatingSystemType, SessionType, ProcessName, Path, ProcessType, ProcessVersion, \
@@ -36,12 +37,13 @@ class DictFlatWrapper(BaseWrapper):
         if 'success' in obs:
             obs.pop('success')
         numeric_obs = obs
-        flat_obs = []
+        flat_obs = {}
 
         # extract the host name
         temp_list = list(numeric_obs.keys())
         hostname_list = list(numeric_obs[temp_list[0]].keys())
         self.n_host = len(hostname_list)
+        count = 0
         # form the obs matrix
         for hostname in hostname_list:
             host_state_list = []
@@ -50,7 +52,8 @@ class DictFlatWrapper(BaseWrapper):
                     self.transform_action_history_value(item[hostname],host_state_list)
                 else:
                     host_state_list.append(self.transform_value(key_name, item[hostname]))
-            flat_obs.append(host_state_list)
+            flat_obs[f"host{count}"] = np.array(host_state_list)
+            count+=1
 
         return flat_obs
 

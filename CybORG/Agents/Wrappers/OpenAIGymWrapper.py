@@ -30,13 +30,14 @@ class OpenAIGymWrapper(Env, BaseWrapper):
             host_state_list = [3, n_host+1]
         elif self.agent_name == 'Blue':
             host_state_list = [3, 2]
-        host_state_list.extend([2]*(len(obs[0])-2))
-        self.observation_space = spaces.Tuple([spaces.MultiDiscrete(host_state_list) for _ in range(n_host)])
+        host_state_list.extend([2]*(len(list(obs.values())[0])-2))
+        self.observation_space = spaces.Dict({f"host{i}":spaces.MultiDiscrete(host_state_list) for i in range(n_host)})
         self.reward_range = (float('-inf'), float('inf'))
         self.metadata = {}
         self.action = None
+        self.render_mode = 'human'
 
-    def step(self, action: Union[int, List[int]] = None) -> Tuple[object, float, bool, dict]:
+    def step(self, action: Union[int, List[int]] = None, truncated=False) -> Tuple[object, float, bool, dict]:
         if action is not None:
             action = self.possible_actions[action]
         self.action = action
@@ -45,20 +46,24 @@ class OpenAIGymWrapper(Env, BaseWrapper):
         result.observation = self.observation_change(self.agent_name, result.observation)
         result.action_space = self.action_space_change(result.action_space)
         info = vars(result)
-        return np.array(result.observation, dtype=np.float32), result.reward, result.done, info
+        # modification
+        return result.observation, result.reward, result.done, truncated, info
 
     @property
     def np_random(self):
         return self.env.get_attr('np_random')
 
-    def reset(self, *, seed: Optional[int] = None, return_info: bool = False, options: Optional[dict] = None):
+    def reset(self, *, seed: Optional[int] = None, return_info: bool = True, options: Optional[dict] = None):
         result = self.env.reset(self.agent_name, seed)
         result.action_space = self.action_space_change(result.action_space)
         result.observation = self.observation_change(self.agent_name, result.observation)
         if return_info:
-            return np.array(result.observation, dtype=np.float32), {}
+            # modification
+            return result.observation, {}
+            # return np.array(result.observation, dtype=np.float32), {}
         else:
-            return np.array(result.observation, dtype=np.float32)
+            return result.observation
+            # return np.array(result.observation, dtype=np.float32)
 
     def render(self, mode='human'):
         return self.env.render(mode)

@@ -240,7 +240,9 @@ class EnvironmentController(CybORGLogger):
 
     def sort_action_order(self, actions: dict) -> dict:
         """Reorders the actions to determine order of execution"""
-        return {agent_name: agent_action for agent_name, agent_action in actions.items() if type(agent_action) not in [Sleep, InvalidAction]}
+        # modification
+        return {agent_name: agent_action for agent_name, agent_action in actions.items() if type(agent_action) not in []}
+        # return {agent_name: agent_action for agent_name, agent_action in actions.items() if type(agent_action) not in [Sleep, InvalidAction]}
 
     def set_np_random(self, np_random):
         self.np_random = np_random

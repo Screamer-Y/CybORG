@@ -40,6 +40,6 @@ class IPDiscovered(RemoteAction):
         for i in range(len(target_ip)):
             obs.add_interface_info(hostid=str(target_ip[i]), subnet=target_subnet[i], ip_address=target_ip[i])
         # obs purfier
-        if self.hostname not in state.discovered_sequence:
-            state.discovered_sequence.append(self.hostname)
+        if self.target_host_id not in state.discovered_sequence:
+            state.discovered_sequence.append(self.target_host_id)
         return obs

@@ -105,10 +105,10 @@ class ReproductionBlueRewardCalculator(RewardCalculator):
         if 'Sleep' in str(type(action['Blue'])):
             return 0.0
         if 'Scan' in str(type(action['Blue'])):
-            print(vars(agent_observations['Blue']))
-            new_suspicious_host_len = len(agent_observations['Blue'].data['hostname']) - len(self.last_scan)
+            suspicious_host_list = result = [key for key, value in agent_observations['Blue'].data['suspicous'].items() if value == 1] 
+            new_suspicious_host_len = len(suspicious_host_list) - len(self.last_scan)
             reward = new_suspicious_host_len * self.SCAN_REWARD
-            self.last_scan = list(agent_observations['Blue'].data['hostname'])
+            self.last_scan = suspicious_host_list
             return max(round(reward, REWARD_MAX_DECIMAL_PLACES), 0.0)
         if 'RollBack' in str(type(action['Blue'])):
             if agent_observations[self.agent_name].data['success']:

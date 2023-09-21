@@ -40,7 +40,7 @@ class CybORGExtension(CybORG):
         self.host_absvul_map = host_absvul_map
         for host,boolean in self.environment_controller.agent_interfaces['Red'].action_space.hostname.items():
             if boolean:
-                self.environment_controller.state.discovered_sequence.append(host)        
+                self.environment_controller.state.discovered_sequence.append(host)
 
     def init_update_attacker_action_history(self, host_absvul_map, obs):
         obs_data = obs.data
@@ -97,6 +97,9 @@ class CybORGExtension(CybORG):
         results = super().reset(agent, seed)
         self.environment_controller.state.host_absvul_map = self.host_absvul_map
         self.update_host_absvul_action_space()
+        for host,boolean in self.environment_controller.agent_interfaces['Red'].action_space.hostname.items():
+            if boolean:
+                self.environment_controller.state.discovered_sequence.append(host)
         return results
 
 # class CybORGExtension(ABC):

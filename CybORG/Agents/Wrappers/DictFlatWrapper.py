@@ -7,6 +7,7 @@ from CybORG.Shared.Enums import OperatingSystemType, SessionType, ProcessName, P
     AppProtocol, FileType, ProcessState, Vulnerability, Vendor, PasswordHashType, BuiltInGroups, \
     OperatingSystemDistribution, OperatingSystemVersion, OperatingSystemKernelVersion, Architecture, \
     OperatingSystemPatch, FileVersion
+from collections import OrderedDict
 
 
 class DictFlatWrapper(BaseWrapper):
@@ -37,7 +38,7 @@ class DictFlatWrapper(BaseWrapper):
         if 'success' in obs:
             obs.pop('success')
         numeric_obs = obs
-        flat_obs = {}
+        flat_obs = OrderedDict({})
 
         # extract the host name
         temp_list = list(numeric_obs.keys())

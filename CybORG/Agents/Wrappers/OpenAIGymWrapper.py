@@ -9,8 +9,6 @@ from prettytable import PrettyTable
 from CybORG.Agents.SimpleAgents.BaseAgent import BaseAgent
 from CybORG.Agents.Wrappers.BaseWrapper import BaseWrapper
 
-
-
 class OpenAIGymWrapper(Env, BaseWrapper):
     def __init__(self, env: BaseWrapper, agent_name: str):
         super().__init__(env)
@@ -37,7 +35,7 @@ class OpenAIGymWrapper(Env, BaseWrapper):
         self.action = None
         self.render_mode = 'human'
 
-    def step(self, action: Union[int, List[int]] = None, truncated=False) -> Tuple[object, float, bool, dict]:
+    def step(self, action: Union[int, List[int]] = None) -> Tuple[object, float, bool, dict]:
         if action is not None:
             action = self.possible_actions[action]
         self.action = action
@@ -46,14 +44,13 @@ class OpenAIGymWrapper(Env, BaseWrapper):
         result.observation = self.observation_change(self.agent_name, result.observation)
         result.action_space = self.action_space_change(result.action_space)
         info = vars(result)
-        # modification
-        return result.observation, result.reward, result.done, truncated, info
+        return result.observation, result.reward, result.done, info
 
     @property
     def np_random(self):
         return self.env.get_attr('np_random')
 
-    def reset(self, *, seed: Optional[int] = None, return_info: bool = True, options: Optional[dict] = None):
+    def reset(self, *, seed: Optional[int] = None, return_info: bool = False, options: Optional[dict] = None):
         result = self.env.reset(self.agent_name, seed)
         result.action_space = self.action_space_change(result.action_space)
         result.observation = self.observation_change(self.agent_name, result.observation)
